@@ -1,0 +1,50 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: shopping-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/shopping_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  cloud:
+    function:
+      definition: orderCreated
+    stream:
+      bindings:
+        orderCreated-in-0:
+          destination: order-events
+          group: shopping-group
+      kafka:
+        binder:
+          brokers: localhost:9092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+resilience4j:
+  retry:
+    instances:
+      inventoryRetry:
+        maxAttempts: 3
+        waitDuration: 2s
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+logging:
+  level:
+    com.example: DEBUG
