@@ -1,11 +1,11 @@
 server:
-  port: 8081
+  port: 8084
 
 spring:
   application:
-    name: order-service
+    name: user-service
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/order_db
+    url: jdbc:postgresql://127.0.0.1:5434/user_db
     username: user
     password: password
     driver-class-name: org.postgresql.Driver
@@ -13,16 +13,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  cloud:
-    function:
-      definition: orderCreated
-    stream:
-      bindings:
-        orderCreated-out-0:
-          destination: order-events
-      kafka:
-        binder:
-          brokers: localhost:9092
 
 eureka:
   instance:
@@ -30,13 +20,6 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-
-resilience4j:
-  retry:
-    instances:
-      orderCreated:
-        maxAttempts: 3
-        waitDuration: 2s
 
 management:
   tracing:
@@ -49,3 +32,4 @@ management:
 logging:
   level:
     com.example: DEBUG
+    org.springframework.security: DEBUG
