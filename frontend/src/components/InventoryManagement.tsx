@@ -36,13 +36,15 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ products, onR
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await inventoryApi.delete(id);
-        onRefresh();
-      } catch (error) {
-        console.error('Delete failed:', error);
-      }
+    try {
+      console.log('Sending DELETE request for product ID:', id);
+      await inventoryApi.delete(id);
+      console.log('Delete successful!');
+      onRefresh();
+      alert('Product deleted successfully!');
+    } catch (error) {
+      console.error('Delete failed:', error);
+      alert('Failed to delete product. Check browser console.');
     }
   };
 
@@ -137,45 +139,44 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ products, onR
         </form>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-              <th style={{ textAlign: 'left', padding: '1rem' }}>Product</th>
-              <th style={{ textAlign: 'left', padding: '1rem' }}>Price</th>
-              <th style={{ textAlign: 'left', padding: '1rem' }}>Quantity</th>
-              <th style={{ textAlign: 'right', padding: '1rem' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map(product => (
-              <tr key={product.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <td style={{ padding: '1rem' }}>
-                  <div style={{ fontWeight: 600 }}>{product.name || product.skuCode}</div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{product.skuCode} &bull; {product.brand || 'No Brand'}</div>
-                </td>
-                <td style={{ padding: '1rem' }}>
-                  ${product.price?.toFixed(2) || '0.00'}
-                </td>
-                <td style={{ padding: '1rem' }}>
-                  <span className={`status-badge ${product.quantity > 0 ? 'status-success' : 'status-failed'}`}>
-                    {product.quantity} units
-                  </span>
-                </td>
-                <td style={{ padding: '1rem', textAlign: 'right' }}>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                    <button className="btn btn-secondary" style={{ padding: '0.5rem' }} onClick={() => handleEdit(product)}>
-                      <Pencil size={16} />
-                    </button>
-                    <button className="btn btn-danger" onClick={() => handleDelete(product.id)}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1rem' }}>
+        {products.map(product => (
+          <div key={product.id} className="glass-card animate-in" style={{ padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ height: '220px', width: '100%', background: 'rgba(255,255,255,0.02)', position: 'relative' }}>
+              {product.imageUrl ? (
+                <img src={product.imageUrl} alt={product.name || product.skuCode} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Package size={48} opacity={0.2} />
+                </div>
+              )}
+              <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(15, 23, 42, 0.8)', padding: '4px 10px', borderRadius: '6px', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <span style={{ fontWeight: 600, fontSize: '0.85rem', color: product.quantity > 0 ? '#22c55e' : '#ef4444' }}>
+                  {product.quantity} in stock
+                </span>
+              </div>
+            </div>
+
+            <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <div style={{ color: 'var(--accent)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem', textTransform: 'uppercase' }}>
+                {product.brand || 'Generic'} &bull; {product.skuCode}
+              </div>
+              <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                {product.name || product.skuCode}
+              </h3>
+              <div style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '1rem' }}>${product.price?.toFixed(2) || '0.00'}</div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto' }}>
+                <button className="btn btn-secondary" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.75rem' }} onClick={() => handleEdit(product)}>
+                  <Pencil size={18} /> Edit
+                </button>
+                <button className="btn btn-danger" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.75rem' }} onClick={() => handleDelete(product.id)}>
+                  <Trash2 size={18} /> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
