@@ -10,8 +10,16 @@ spring:
         cors-configurations:
           '[/**]':
             allowedOriginPatterns: "http://localhost:5173"
-            allowedMethods: "*"
-            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - Authorization
+              - Content-Type
+              - Accept
             allowCredentials: true
       routes:
         - id: user-service

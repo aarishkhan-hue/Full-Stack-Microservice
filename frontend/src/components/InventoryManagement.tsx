@@ -167,7 +167,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ products, onR
                     <button className="btn btn-secondary" style={{ padding: '0.5rem' }} onClick={() => handleEdit(product)}>
                       <Pencil size={16} />
                     </button>
-                    <button className="btn btn-secondary" style={{ padding: '0.5rem', color: '#ff4444' }} onClick={() => handleDelete(product.id)}>
+                    <button className="btn btn-danger" onClick={() => handleDelete(product.id)}>
                       <Trash2 size={16} />
                     </button>
                   </div>
