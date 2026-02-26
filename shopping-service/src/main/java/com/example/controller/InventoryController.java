@@ -4,6 +4,8 @@ import com.example.model.Inventory;
 import com.example.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,12 +20,14 @@ public class InventoryController {
     private final InventoryRepository inventoryRepository;
 
     @GetMapping
+    @Cacheable(value = "inventoryList")
     public List<Inventory> getAllInventory() {
-        log.info("Fetching all inventory items");
+        log.info("Fetching all inventory items from DB/Cache");
         return inventoryRepository.findAll();
     }
 
     @GetMapping("/{skuCode}")
+    @Cacheable(value = "inventoryItem", key = "#skuCode")
     public Inventory getInventoryBySkuCode(@PathVariable String skuCode) {
         log.info("Fetching inventory for SKU: {}", skuCode);
         return inventoryRepository.findBySkuCode(skuCode)
@@ -32,12 +36,14 @@ public class InventoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CacheEvict(value = "inventoryList", allEntries = true)
     public Inventory addProduct(@RequestBody Inventory inventory) {
         log.info("Adding new product: {}", inventory.getSkuCode());
         return inventoryRepository.save(inventory);
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = { "inventoryList", "inventoryItem" }, allEntries = true)
     public Inventory updateProduct(@PathVariable Long id, @RequestBody Inventory inventory) {
         log.info("Updating product ID: {}", id);
         Inventory existing = inventoryRepository.findById(id)
@@ -60,6 +66,7 @@ public class InventoryController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(value = { "inventoryList", "inventoryItem" }, allEntries = true)
     public void deleteProduct(@PathVariable Long id) {
         log.info("Deleting product ID: {}", id);
         inventoryRepository.deleteById(id);
